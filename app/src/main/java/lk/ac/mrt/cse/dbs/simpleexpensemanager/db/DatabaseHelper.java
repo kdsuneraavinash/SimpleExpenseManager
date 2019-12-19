@@ -25,9 +25,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         database.execSQL("CREATE TABLE IF NOT EXISTS " + DatabaseConstants.EXPENSE_TYPE_TABLE +
                 "(" + DatabaseConstants.EXPENSE_TYPE_TYPE + " VARCHAR(31) PRIMARY KEY);");
         database.execSQL("INSERT INTO " + DatabaseConstants.EXPENSE_TYPE_TABLE +
-                "(" + DatabaseConstants.EXPENSE_TYPE_TYPE + ") VALUES (" + DatabaseConstants.TYPE_EXPENSE +");");
+                "(" + DatabaseConstants.EXPENSE_TYPE_TYPE + ") VALUES (?);", new String[]{DatabaseConstants.TYPE_EXPENSE});
         database.execSQL("INSERT INTO " + DatabaseConstants.EXPENSE_TYPE_TABLE +
-                "(" + DatabaseConstants.EXPENSE_TYPE_TYPE + ") VALUES (" + DatabaseConstants.TYPE_INCOME +");");
+                "(" + DatabaseConstants.EXPENSE_TYPE_TYPE + ") VALUES (?);", new String[]{DatabaseConstants.TYPE_INCOME});
 
         database.execSQL("CREATE TABLE IF NOT EXISTS " + DatabaseConstants.TRANSACTION_TABLE + "(" +
                 DatabaseConstants.TRANSACTION_ID + " INTEGER PRIMARY KEY," +

@@ -96,6 +96,8 @@ public class PersistentAccountDAO implements AccountDAO {
     public void updateBalance(String accountNo, ExpenseType expenseType, double amount) throws InvalidAccountException {
         SQLiteDatabase database = helper.getWritableDatabase();
 
+        if (accountNo == null) throw new InvalidAccountException("Account was not selected");
+
         database.beginTransaction();
         Account account = getAccount(accountNo);
 

@@ -1,7 +1,8 @@
 package lk.ac.mrt.cse.dbs.simpleexpensemanager.control;
 
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
+
+import java.io.Serializable;
 
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.AccountDAO;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.TransactionDAO;
@@ -19,8 +20,6 @@ public class PersistentDemoExpenseManager extends ExpenseManager {
 
     @Override
     public void setup() {
-        SQLiteDatabase database = databaseHelper.getWritableDatabase();
-
         TransactionDAO persistentTransactionDAO = new PersistentTransactionDAO(databaseHelper);
         setTransactionsDAO(persistentTransactionDAO);
         AccountDAO persistentAccountDAO = new PersistentAccountDAO(databaseHelper);
