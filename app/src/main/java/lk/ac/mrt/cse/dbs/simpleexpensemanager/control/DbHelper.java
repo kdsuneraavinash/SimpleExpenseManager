@@ -34,10 +34,10 @@ public class DbHelper extends SQLiteOpenHelper {
         if (tableMissing(database, "transaction_log")) {
             database.execSQL("CREATE TABLE IF NOT EXISTS transaction_log(" +
                     "id INTEGER PRIMARY KEY," +
-                    "accountno VARCHAR(15) NOT NULL," +
-                    "type VARCHAR(31) NOT NULL," +
-                    "date TIMESTAMP NOT NULL," +
-                    "amount NUMERIC(12, 2) NOT NULL," +
+                    "accountno VARCHAR(15) NOT NULL," + // 2
+                    "type VARCHAR(31) NOT NULL," + // 3
+                    "date TIMESTAMP NOT NULL," +  //1
+                    "amount NUMERIC(12, 2) NOT NULL," + // 4
                     "FOREIGN KEY (accountno) REFERENCES account(accountno)," +
                     "FOREIGN KEY (type) REFERENCES expense_type(type)" +
                     ");");
@@ -54,13 +54,12 @@ public class DbHelper extends SQLiteOpenHelper {
         }
     }
 
-
     @Override
     public void onUpgrade(SQLiteDatabase database, int oldVersion, int newVersion) {
         Log.w(this.getClass().getName(), "Upgrading db from "+oldVersion+" to "+newVersion);
-        database.execSQL("DROP TABLE IF EXISTS account;");
-        database.execSQL("DROP TABLE IF EXISTS expense_type;");
         database.execSQL("DROP TABLE IF EXISTS transaction_log;");
+        database.execSQL("DROP TABLE IF EXISTS expense_type;");
+        database.execSQL("DROP TABLE IF EXISTS account;");
         onCreate(database);
     }
 }

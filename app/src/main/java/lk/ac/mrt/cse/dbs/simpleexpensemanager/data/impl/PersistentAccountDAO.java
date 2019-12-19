@@ -46,7 +46,7 @@ public class PersistentAccountDAO implements AccountDAO {
 
     @Override
     public Account getAccount(String accountNo) throws InvalidAccountException {
-        Cursor cursor = database.rawQuery("SELECT * from account WHERE accountno='" + accountNo + "';", null);
+        Cursor cursor = database.rawQuery("SELECT * from account WHERE accountno=?;", new String[]{accountNo});
         Account account;
         if (cursor.moveToFirst()) {
             account = new Account(cursor.getString(0), cursor.getString(1),
@@ -71,7 +71,7 @@ public class PersistentAccountDAO implements AccountDAO {
 
     @Override
     public void removeAccount(String accountNo) throws InvalidAccountException {
-        Cursor cursor = database.rawQuery("SELECT * from account WHERE accountno='" + accountNo + "';", null);
+        Cursor cursor = database.rawQuery("SELECT * from account WHERE accountno=?;", new String[]{accountNo});
         if (cursor.moveToFirst()) {
             database.delete("account", "accountno = ?", new String[]{accountNo});
         } else {
@@ -85,7 +85,6 @@ public class PersistentAccountDAO implements AccountDAO {
         Account account = getAccount(accountNo);
 
         if (account != null) {
-
             double newAmount;
             if (expenseType.equals(ExpenseType.EXPENSE)) {
                 newAmount = account.getBalance() - amount;
@@ -95,7 +94,7 @@ public class PersistentAccountDAO implements AccountDAO {
                 throw new InvalidAccountException("Unknown Expense Type");
             }
 
-            database.execSQL("UPDATE account SET balance = " + newAmount + " WHERE accountno = " + accountNo);
+            database.execSQL("UPDATE account SET balance = ? WHERE accountno = ?", new String[]{Double.toString(newAmount) , accountNo});
         } else {
             throw new InvalidAccountException("Invalid account ID");
         }
