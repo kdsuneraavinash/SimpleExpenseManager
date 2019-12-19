@@ -3,6 +3,7 @@ package lk.ac.mrt.cse.dbs.simpleexpensemanager.data.impl;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -11,46 +12,49 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import lk.ac.mrt.cse.dbs.simpleexpensemanager.db.DatabaseConstants;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.TransactionDAO;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.model.ExpenseType;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.model.Transaction;
 
 public class PersistentTransactionDAO implements TransactionDAO {
-    private SQLiteDatabase database;
+    private SQLiteOpenHelper helper;
     private static SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy",
             Locale.getDefault());
 
-    public PersistentTransactionDAO(SQLiteDatabase database) {
-        this.database = database;
+    public PersistentTransactionDAO(SQLiteOpenHelper helper) {
+        this.helper = helper;
     }
 
     @Override
     public void logTransaction(Date date, String accountNo, ExpenseType expenseType, double amount) {
+        SQLiteDatabase database = helper.getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put("date", dateFormat.format(date));
-        values.put("accountno", accountNo);
-        values.put("type", expenseType.toString());
-        values.put("amount", amount);
-
-        database.insert("transaction_log", null, values);
+        values.put(DatabaseConstants.TRANSACTION_DATE, dateFormat.format(date));
+        values.put(DatabaseConstants.TRANSACTION_ACCOUNTNO, accountNo);
+        values.put(DatabaseConstants.TRANSACTION_TYPE, expenseType.toString());
+        values.put(DatabaseConstants.TRANSACTION_AMOUNT, amount);
+        database.insert(DatabaseConstants.TRANSACTION_TABLE, null, values);
     }
 
     @Override
     public List<Transaction> getAllTransactionLogs() {
-        Cursor cursor = database.rawQuery("SELECT * from transaction_log;", null);
+        SQLiteDatabase database = helper.getReadableDatabase();
+
+        Cursor cursor = database.rawQuery("SELECT * from " + DatabaseConstants.TRANSACTION_TABLE +
+                " order by " + DatabaseConstants.TRANSACTION_ID + " desc ", null);
         ArrayList<Transaction> transactions = new ArrayList<>();
         for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
             try {
-                String expenseTypeStr =  cursor.getString(2);
+                String expenseTypeStr = cursor.getString(2);
                 ExpenseType expenseType = ExpenseType.EXPENSE;
-                if  (expenseTypeStr.equals("INCOME")){
+                if (expenseTypeStr.equals(DatabaseConstants.TYPE_INCOME)) {
                     expenseType = ExpenseType.INCOME;
                 }
                 Transaction transaction = new Transaction(dateFormat.parse(cursor.getString(3)),
                         cursor.getString(1), expenseType, cursor.getDouble(4));
                 transactions.add(transaction);
-            } catch (ParseException e) {
-                e.printStackTrace();
+            } catch (ParseException ignored) {
             }
         }
         cursor.close();
@@ -59,20 +63,23 @@ public class PersistentTransactionDAO implements TransactionDAO {
 
     @Override
     public List<Transaction> getPaginatedTransactionLogs(int limit) {
-        Cursor cursor = database.rawQuery("SELECT * from transaction_log order by id limit ?;", new String[]{Integer.toString(limit)});
+        SQLiteDatabase database = helper.getReadableDatabase();
+
+        Cursor cursor = database.rawQuery("SELECT * from " + DatabaseConstants.TRANSACTION_TABLE +
+                " order by " + DatabaseConstants.TRANSACTION_ID + " desc " +
+                " limit ?;", new String[]{Integer.toString(limit)});
         ArrayList<Transaction> transactions = new ArrayList<>();
         for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
             try {
-                String expenseTypeStr =  cursor.getString(2);
+                String expenseTypeStr = cursor.getString(2);
                 ExpenseType expenseType = ExpenseType.EXPENSE;
-                if  (expenseTypeStr.equals("INCOME")){
+                if (expenseTypeStr.equals(DatabaseConstants.TYPE_INCOME)) {
                     expenseType = ExpenseType.INCOME;
                 }
                 Transaction transaction = new Transaction(dateFormat.parse(cursor.getString(3)),
                         cursor.getString(1), expenseType, cursor.getDouble(4));
                 transactions.add(transaction);
-            } catch (ParseException e) {
-                e.printStackTrace();
+            } catch (ParseException ignored) {
             }
         }
         cursor.close();

@@ -7,22 +7,23 @@ import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.AccountDAO;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.TransactionDAO;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.impl.PersistentAccountDAO;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.impl.PersistentTransactionDAO;
+import lk.ac.mrt.cse.dbs.simpleexpensemanager.db.DatabaseHelper;
 
 public class PersistentDemoExpenseManager extends ExpenseManager {
-    private DbHelper dbHelper;
+    private DatabaseHelper databaseHelper;
 
     public PersistentDemoExpenseManager(Context context) {
-        dbHelper = new DbHelper(context);
+        databaseHelper = new DatabaseHelper(context);
         setup();
     }
 
     @Override
     public void setup() {
-        SQLiteDatabase database = dbHelper.getWritableDatabase();
+        SQLiteDatabase database = databaseHelper.getWritableDatabase();
 
-        TransactionDAO persistentTransactionDAO = new PersistentTransactionDAO(database);
+        TransactionDAO persistentTransactionDAO = new PersistentTransactionDAO(databaseHelper);
         setTransactionsDAO(persistentTransactionDAO);
-        AccountDAO persistentAccountDAO = new PersistentAccountDAO(database);
+        AccountDAO persistentAccountDAO = new PersistentAccountDAO(databaseHelper);
         setAccountsDAO(persistentAccountDAO);
     }
 }
